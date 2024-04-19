@@ -1,5 +1,5 @@
-import type { Config } from 'tailwindcss'
-import { gray } from 'tailwindcss/colors'
+import type { Config } from 'tailwindcss';
+import { gray } from 'tailwindcss/colors';
 
 const config: Config = {
   content: [
@@ -13,5 +13,5 @@ const config: Config = {
     },
   },
   plugins: [],
-}
-export default config
+};
+export default config;
