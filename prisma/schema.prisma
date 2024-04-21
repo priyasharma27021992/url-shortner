@@ -75,5 +75,3 @@ model Url {
   @@unique([userId, originalUrl])
   @@map("urls")
 }
-
-
