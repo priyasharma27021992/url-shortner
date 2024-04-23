@@ -1,15 +1,20 @@
 import type { Config } from 'tailwindcss';
-import { gray } from 'tailwindcss/colors';
+import { black, blue, gray, purple, slate, white } from 'tailwindcss/colors';
 
 const config: Config = {
   content: [
-    './pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './components/**/*.{js,ts,jsx,tsx,mdx}',
-    './app/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     colors: {
       gray: gray,
+      black: black,
+      white: white,
+      primary: purple,
+      blue: blue,
+      slate: slate,
     },
   },
   plugins: [],
