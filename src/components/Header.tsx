@@ -12,7 +12,7 @@ const Header = () => {
   const isAuthenticated = status === 'authenticated' && session?.user;
 
   return (
-    <header className="bg-slate-900 sticky top-0 z-50 flex w-full flex-row items-center gap-4 py-2">
+    <header className="sticky top-0 z-50 flex w-full flex-row items-center gap-4 bg-slate-900 py-2">
       <Link href="/" className="ml-4 flex items-center justify-center gap-3">
         <Image
           className="fill-primary-500"
