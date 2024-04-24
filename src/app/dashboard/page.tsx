@@ -3,6 +3,7 @@
 import StyledTableCell from '@/src/components/Table/StyledTableCell';
 import StyledTableRow from '@/src/components/Table/StyledTableRow';
 import defaultDarkTheme from '@/src/components/ThemeRegistry/theme';
+import { copyToClipboard } from '@/src/lib/utils';
 import { Close, ContentCopy, Delete } from '@mui/icons-material';
 import {
   Button,
@@ -20,7 +21,8 @@ import {
 } from '@mui/material';
 import { Url } from '@prisma/client';
 import { useSession } from 'next-auth/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import Loading from '../loading';
 
 const modalContentStyle = {
   maxWidth: {
@@ -54,16 +56,135 @@ const Dashboard = () => {
   const [deletingUrl, setDeletingUrl] = useState(-1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [addUrlInputError, setAddUrlInputError] = useState('');
-  //   const [curre]
+  const [currentPage, setCurrentPage] = useState(0);
+  const [addingUrl, setAddingUrl] = useState(false);
 
-  function addUrl() {}
+  const handleOpen = () => setIsModalOpen(true);
+  const handleClose = () => setIsModalOpen(false);
+
+  function addUrl(e: any) {
+    setAddingUrl(true);
+    e.preventDefault();
+
+    const formData = {
+      url: e.target.url.value,
+    };
+
+    fetch('/api/urls', {
+      method: 'POST',
+      body: JSON.stringify(formData),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((res) => {
+        const error = res.status !== 200;
+        setAddingUrl(false);
+        res
+          .json()
+          .then((data) => {
+            if (error && data.details) {
+              setAddUrlInputError(data.details.toString());
+              return;
+            }
+            if (error) {
+              setAddUrlInputError('Some error occured!');
+              return;
+            }
+            setAddUrlInputError('');
+            const url = data as Url;
+            if (skip !== 0) {
+              setSkip(0);
+            } else {
+              urlList.splice(1, 0, url);
+              setUrlList(urlList);
+            }
+            setIsModalOpen(false);
+            setTotalUrlCount(totalUrlCount + 1);
+          })
+          .catch((e) => {
+            console.log('Some error occurred while adding URL');
+          });
+      })
+      .catch((e) => {
+        debugger;
+        setAddingUrl(false);
+        setAddUrlInputError('Some error occured');
+      });
+  }
+
+  function deleteUrl(id: string, index: number) {
+    setDeletingUrl(index);
+    fetch('/api/urls', {
+      method: 'DELETE',
+      body: JSON.stringify({ id: id }),
+      headers: {
+        'Content-Type': 'applications/json',
+      },
+    })
+      .then((res) => {
+        setDeletingUrl(-1);
+        if (res.status === 200) {
+          urlList.splice(index, 1);
+          setUrlList(urlList);
+
+          //   if the urllist is empty, then we have to go to the previous page if allowed
+          if (urlList.length === 0) {
+            const newPage = Math.max(0, currentPage - 1);
+            setCurrentPage(newPage);
+            setSkip(newPage * take);
+          }
+          setTotalUrlCount(totalUrlCount - 1);
+          return;
+        }
+        res
+          .json()
+          .then((data) => {
+            if (data && data.details) {
+              console.log('error', data.details.toString());
+            }
+          })
+          .catch((e) => {
+            console.log('error');
+          });
+      })
+      .catch((e) => {
+        setDeletingUrl(-1);
+      });
+  }
+
+  const onUrlClick = (text: string) => {
+    copyToClipboard(text);
+  };
+
+  useEffect(() => {
+    if (status === 'loading' || status === 'unauthenticated') {
+      return;
+    }
+    setLoading(true);
+    fetch(`/api/urls?skip=${skip}&take=${take}`)
+      .then((res) => res.json())
+      .then((data: { data: IPaginatedUrls }) => {
+        setUrlList(data?.data?.results);
+        setTotalUrlCount(data?.data?.totalCount);
+        setLoading(false);
+      });
+  }, [status, skip]);
+
+  if (status === 'loading') {
+    return <Loading />;
+  }
+
+  if (status === 'unauthenticated') {
+    <div>Unauthenticated</div>;
+  }
 
   return (
     <div>
       <div className="flex w-full flex-col gap-4">
         <div className="flex w-full items-center justify-between">
           <p>Total Urls: </p>
-          <Button variant="contained" onClick={() => {}}>
+          <Button variant="contained" onClick={handleOpen}>
             Add Url
           </Button>
         </div>
@@ -160,12 +281,12 @@ const Dashboard = () => {
                   type="url"
                   placeholder="Url"
                   inputProps={{ style: { color: 'black' } }}
-                  error={addUrlInputError ?? null}
+                  error={addUrlInputError !== '' ? true : false}
                   InputLabelProps={{ style: { color: 'black' } }}
                 />
               </div>
               <div className="mx-auto flex w-4/12 items-center justify-center">
-                <Button>
+                <Button variant="contained" type="submit" fullWidth>
                   {addingUrl ? (
                     <CircularProgress size={30}></CircularProgress>
                   ) : (

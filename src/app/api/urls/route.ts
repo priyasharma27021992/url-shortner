@@ -31,8 +31,7 @@ export async function POST(req: NextRequest) {
   try {
     //   Get Original url from the body
     const body = await req.json();
-    console.log('body', body);
-    const originalUrl = body.get('url');
+    const originalUrl = body['url'];
 
     //   Try to parse the url, will throw an exception if the url is not correct
     new URL(originalUrl);
