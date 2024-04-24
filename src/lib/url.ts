@@ -73,3 +73,16 @@ export const getUrlsForUser = async (
     take: take,
   };
 };
+
+export const deleteUrl = async (
+  id: string,
+  userId: string,
+): Promise<boolean> => {
+  await prisma.url.delete({
+    where: {
+      id: id,
+      userId: userId,
+    },
+  });
+  return true;
+};

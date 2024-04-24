@@ -1,6 +1,7 @@
 import { authOptions } from '@/src/lib/authOptions';
-import { createUrl, getUrlsForUser } from '@/src/lib/url';
+import { createUrl, deleteUrl, getUrlsForUser } from '@/src/lib/url';
 import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
@@ -41,5 +42,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(url);
   } catch (err) {
     return NextResponse.json({ details: 'Invalid Url' }, { status: 400 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  // Get Session data
+  const session = await getServerSession(authOptions);
+  if (!session || !session?.user) {
+    redirect('/dashboard');
+  }
+
+  try {
+    const body = await req.json();
+    await deleteUrl(body.id, session.user.id);
+    return NextResponse.json({ details: 'Succefully Deleted' });
+  } catch (e) {
+    console.log(e);
+    return NextResponse.json(
+      { details: 'Some error occurred' },
+      { status: 400 },
+    );
   }
 }
