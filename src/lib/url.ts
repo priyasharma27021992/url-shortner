@@ -2,6 +2,7 @@ import { Session } from 'next-auth';
 import { prisma } from './prisma';
 import crypto from 'crypto';
 
+// getting url by id
 export const getUrlById = async (id: string) => {
   const url = await prisma.url.findUnique({
     where: {
@@ -14,6 +15,7 @@ export const getUrlById = async (id: string) => {
   return url;
 };
 
+// create url
 export const createUrl = async (originalUrl: string, session: Session) => {
   if (!session?.user?.email) {
     throw new Error('No email present in session object');
