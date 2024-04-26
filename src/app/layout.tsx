@@ -4,6 +4,7 @@ import './globals.css';
 import ThemeRegistry from '../components/ThemeRegistry/ThemeRegistry';
 import NextAuthSessionProvider from '../providers/NextAuthSessionProvider';
 import Header from '../components/Header';
+import NotificationProvider from '../providers/NotificationProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,7 +24,9 @@ function RootLayout({
         <ThemeRegistry>
           <NextAuthSessionProvider>
             <Header />
-            <main className="flex flex-1 flex-col p-5">{children}</main>
+            <NotificationProvider>
+              <main className="flex flex-1 flex-col p-5">{children}</main>
+            </NotificationProvider>
           </NextAuthSessionProvider>
         </ThemeRegistry>
       </body>

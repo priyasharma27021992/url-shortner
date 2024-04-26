@@ -20,9 +20,11 @@ import {
   TextField,
 } from '@mui/material';
 import { Url } from '@prisma/client';
-import { useSession } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import Loading from '../loading';
+import { useSnackbar } from 'notistack';
+import Image from 'next/image';
 
 const modalContentStyle = {
   maxWidth: {
@@ -58,6 +60,7 @@ const Dashboard = () => {
   const [addUrlInputError, setAddUrlInputError] = useState('');
   const [currentPage, setCurrentPage] = useState(0);
   const [addingUrl, setAddingUrl] = useState(false);
+  const { enqueueSnackbar } = useSnackbar();
 
   const handleOpen = () => setIsModalOpen(true);
   const handleClose = () => setIsModalOpen(false);
@@ -100,9 +103,13 @@ const Dashboard = () => {
               setUrlList(urlList);
             }
             setIsModalOpen(false);
+            enqueueSnackbar('Successfully Added!', { variant: 'success' });
             setTotalUrlCount(totalUrlCount + 1);
           })
           .catch((e) => {
+            enqueueSnackbar('Some error occurred while adding URL', {
+              variant: 'error',
+            });
             console.log('Some error occurred while adding URL');
           });
       })
@@ -135,6 +142,8 @@ const Dashboard = () => {
             setSkip(newPage * take);
           }
           setTotalUrlCount(totalUrlCount - 1);
+          enqueueSnackbar('Successfully Deleted!', { variant: 'success' });
+
           return;
         }
         res
@@ -142,19 +151,25 @@ const Dashboard = () => {
           .then((data) => {
             if (data && data.details) {
               console.log('error', data.details.toString());
+              enqueueSnackbar(data.details.toString(), { variant: 'error' });
             }
           })
           .catch((e) => {
+            enqueueSnackbar('Some error occurred while deleting URL', {
+              variant: 'error',
+            });
             console.log('error');
           });
       })
       .catch((e) => {
         setDeletingUrl(-1);
+        enqueueSnackbar('Some error occurred', { variant: 'error' });
       });
   }
 
   const onUrlClick = (text: string) => {
     copyToClipboard(text);
+    enqueueSnackbar('Copied to clipboard!', { variant: 'info' });
   };
 
   useEffect(() => {
@@ -176,7 +191,22 @@ const Dashboard = () => {
   }
 
   if (status === 'unauthenticated') {
-    <div>Unauthenticated</div>;
+    return (
+      <div className="flex flex-1 items-center justify-center">
+        <div className="flex items-center justify-center rounded bg-gray-200 p-5">
+          <Button variant="contained" onClick={() => signIn('google')}>
+            <Image
+              src="/google-logo.svg"
+              alt="Google"
+              width={30}
+              height={30}
+              className="py-3"
+            />
+            <span className="bg-blue-500 px-4 py-3">Sign in with Google</span>
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
