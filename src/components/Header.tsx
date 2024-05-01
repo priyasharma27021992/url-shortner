@@ -16,7 +16,7 @@ const Header = () => {
       <Link href="/" className="ml-4 flex items-center justify-center gap-3">
         <Image
           className="fill-primary-500"
-          src="/logo.svg"
+          src="/miss-techie-logo.jpg"
           alt="Logo"
           width={24}
           height={24}
