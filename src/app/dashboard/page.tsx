@@ -194,7 +194,13 @@ const Dashboard = () => {
     return (
       <div className="flex flex-1 items-center justify-center">
         <div className="flex items-center justify-center rounded bg-gray-200 p-5">
-          <Button variant="contained" onClick={() => signIn('google')}>
+          <Button
+            variant="contained"
+            onClick={(e) => {
+              e.preventDefault();
+              signIn('google');
+            }}
+          >
             <Image
               src="/google-logo.svg"
               alt="Google"
